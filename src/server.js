@@ -20,42 +20,43 @@ export const setupServer = () => {
     }),
   );
 
-  app.get('/contacts', async (req, res) => {
-    const contacts = await getAllContacts();
-
-    res.json({
-      status: 200,
-      message: 'Successfully found contacts!',
-      data: contacts,
-    });
+  app.get('/contacts', async (req, res, next) => {
+    try {
+      const contacts = await getAllContacts();
+      res.json({
+        status: 200,
+        message: 'Successfully found contacts!',
+        data: contacts,
+      });
+    } catch (err) {
+      next(err);
+    }
   });
 
-  app.get('/contacts/:contactId', async (req, res) => {
+  app.get('/contacts/:contactId', async (req, res, next) => {
     const { contactId } = req.params;
-    const contact = await getContactById(contactId);
     try {
+      const contact = await getContactById(contactId);
+
       res.json({
         status: 200,
         data: contact,
         message: `Successfully found contact with id ${contactId}!`,
       });
     } catch (err) {
-      res.status(404).json({
-        message: 'Not found',
-      });
+      next(err);
     }
   });
 
   app.use('*', (req, res, next) => {
     res.status(404).json({
-      message: 'Not found',
+      message: 'Contacts not found!',
     });
   });
 
   app.use((err, req, res, next) => {
-    res.status(500).json({
-      message: 'Something went wrong',
-      error: err.message,
+    res.status(404).json({
+      message: 'Not found',
     });
   });
 
