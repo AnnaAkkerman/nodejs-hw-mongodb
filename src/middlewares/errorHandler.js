@@ -9,7 +9,7 @@ export const errorHandler = (err, req, res, next) => {
     });
   }
 
-  if (error instanceof MongooseError) {
+  if (err instanceof MongooseError) {
     return res.status(500).json({
       status: 500,
       message: 'Something went wrong',

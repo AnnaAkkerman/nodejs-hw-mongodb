@@ -1,9 +1,7 @@
 import createHttpError from 'http-errors';
 import { Contact } from '../db/contact.js';
-import { SchemaTypeOptions } from 'mongoose';
 
 export const getAllContacts = async () => {
-  // throw new Error('some error');
   const contacts = await Contact.find();
   return contacts;
 };
