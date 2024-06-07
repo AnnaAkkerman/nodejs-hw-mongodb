@@ -1,11 +1,61 @@
 import createHttpError from 'http-errors';
 import { Contact } from '../db/contact.js';
-import { SchemaTypeOptions } from 'mongoose';
 
-export const getAllContacts = async () => {
-  // throw new Error('some error');
-  const contacts = await Contact.find();
-  return contacts;
+const createPaginationInformation = (page, perPage, count) => {
+  const totalPages = Math.ceil(count / perPage);
+  const hasPreviousPage = page > 1;
+  const hasNextPage = page < totalPages;
+
+  return {
+    page,
+    perPage,
+    totalItems: count,
+    totalPages,
+    hasPreviousPage,
+    hasNextPage,
+  };
+};
+
+export const getAllContacts = async ({
+  page = 1,
+  perPage = 10,
+  sortBy = 'name',
+  sortOrder = 'asc',
+  filter = {},
+}) => {
+  const skip = perPage * (page - 1);
+
+  const contactsFilters = Contact.find();
+
+  if (filter.isFavourite) {
+    contactsFilters.where('isFavourite').equals(filter.isFavourite);
+  }
+  if (filter.type) {
+    contactsFilters.where('contactType').equals(filter.type);
+  }
+
+  const [contactsCount, data] = await Promise.all([
+    Contact.find().merge(contactsFilters).countDocuments(),
+    Contact.find()
+      .merge(contactsFilters)
+      .skip(skip)
+      .limit(perPage)
+      .sort({
+        [sortBy]: sortOrder,
+      })
+      .exec(),
+  ]);
+
+  const paginationInformation = createPaginationInformation(
+    page,
+    perPage,
+    contactsCount,
+  );
+
+  return {
+    data,
+    ...paginationInformation,
+  };
 };
 
 export const getContactById = async (contactId) => {
