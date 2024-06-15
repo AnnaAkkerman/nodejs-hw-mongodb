@@ -22,6 +22,7 @@ export const getAllContacts = async ({
   sortBy = 'name',
   sortOrder = 'asc',
   filter = {},
+  userId,
 }) => {
   const skip = perPage * (page - 1);
 
@@ -58,8 +59,8 @@ export const getAllContacts = async ({
   };
 };
 
-export const getContactById = async (contactId) => {
-  const contact = await Contact.findById(contactId);
+export const getContactById = async (authContactId) => {
+  const contact = await Contact.findOne(authContactId);
   if (!contact) {
     throw createHttpError(404, {
       status: 404,
@@ -77,8 +78,8 @@ export const createContact = async (payload) => {
   return contact;
 };
 
-export const upsertContact = async (contactId, payload, options = {}) => {
-  const rawResult = await Contact.findByIdAndUpdate(contactId, payload, {
+export const upsertContact = async (authContactId, payload, options = {}) => {
+  const rawResult = await Contact.findByIdAndUpdate(authContactId, payload, {
     new: true,
     includeResultMetadata: true,
     ...options,
@@ -98,9 +99,9 @@ export const upsertContact = async (contactId, payload, options = {}) => {
   };
 };
 
-export const deleteContactById = async (contactId) => {
-  await Contact.findByIdAndDelete(contactId);
-  if (!contactId) {
+export const deleteContactById = async (authContactId) => {
+  await Contact.findByIdAndDelete(authContactId);
+  if (!authContactId) {
     throw createHttpError(404, {
       status: 404,
       message: 'Contact not found',
