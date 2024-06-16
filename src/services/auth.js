@@ -5,6 +5,7 @@ import createHttpError from 'http-errors';
 
 import { UsersCollection } from '../db/user.js';
 import { SessionsCollection } from '../db/session.js';
+
 export const registerUser = async (payload) => {
   const existingUser = await UsersCollection.findOne({ email: payload.email });
   if (existingUser) {
