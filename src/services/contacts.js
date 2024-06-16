@@ -79,7 +79,7 @@ export const createContact = async (payload) => {
 };
 
 export const upsertContact = async (authContactId, payload, options = {}) => {
-  const rawResult = await Contact.findByIdAndUpdate(authContactId, payload, {
+  const rawResult = await Contact.findOneAndUpdate(authContactId, payload, {
     new: true,
     includeResultMetadata: true,
     ...options,
@@ -100,7 +100,7 @@ export const upsertContact = async (authContactId, payload, options = {}) => {
 };
 
 export const deleteContactById = async (authContactId) => {
-  await Contact.findByIdAndDelete(authContactId);
+  await Contact.findOneAndDelete(authContactId);
   if (!authContactId) {
     throw createHttpError(404, {
       status: 404,
