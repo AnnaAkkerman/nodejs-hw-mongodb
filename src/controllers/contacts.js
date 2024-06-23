@@ -11,7 +11,7 @@ import { parsePaginationParams } from '../utils/parsePaginationParams.js';
 export const getContactsController = async (req, res, next) => {
   const { page, perPage } = parsePaginationParams(req.query);
   const { sortBy, sortOrder } = req.query;
-  // const { isFavourite, contactType } = req.query;
+
   const filter = parseFilters(req.query);
 
   const contacts = await getAllContacts({
@@ -64,8 +64,11 @@ export const getContactByIdController = async (req, res, next) => {
 };
 
 export const createContactController = async (req, res, next) => {
-  // const { body } = req;
-  const contact = await createContact({ userId: req.user._id, ...req.body });
+  const contact = await createContact({
+    userId: req.user._id,
+    ...req.body,
+    avatar: req.file,
+  });
   res.status(201).json({
     status: 201,
     data: contact,
@@ -74,10 +77,13 @@ export const createContactController = async (req, res, next) => {
 };
 
 export const patchContactByIdController = async (req, res, next) => {
-  const { body } = req;
+  const { body, file } = req;
   const authContactId = setAuthContactId(req);
   // const { contactId } = req.params;
-  const { contact } = await upsertContact(authContactId, body);
+  const { contact } = await upsertContact(authContactId, {
+    ...body,
+    avatar: file,
+  });
   res.json({
     status: 200,
     data: contact,
@@ -86,12 +92,19 @@ export const patchContactByIdController = async (req, res, next) => {
 };
 
 export const putContactByIdController = async (req, res, next) => {
-  const { body } = req;
+  const { body, file } = req;
   const authContactId = setAuthContactId(req);
   // const { contactId } = req.params;
-  const { isNew, contact } = await upsertContact(authContactId, body, {
-    upsert: true,
-  });
+  const { isNew, contact } = await upsertContact(
+    authContactId,
+    {
+      ...body,
+      avatar: file,
+    },
+    {
+      upsert: true,
+    },
+  );
   const status = isNew ? 201 : 200;
 
   res.status(status).json({

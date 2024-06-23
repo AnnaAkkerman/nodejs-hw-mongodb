@@ -13,6 +13,7 @@ import { validateBody } from '../middlewares/validateBody.js';
 import { createContactSchema } from '../validation/createContactSchema.js';
 import { updateContactSchema } from '../validation/updateContactSchema.js';
 import { authenticate } from '../middlewares/authenticate.js';
+import { upload } from '../middlewares/upload.js';
 
 const contactsRouter = Router();
 
@@ -31,6 +32,7 @@ contactsRouter.get(
 
 contactsRouter.post(
   '/',
+  upload.single('avatar'),
   authenticate,
   validateBody(createContactSchema),
   ctrlWrapper(createContactController),
@@ -38,6 +40,7 @@ contactsRouter.post(
 
 contactsRouter.patch(
   '/:contactId',
+  upload.single('avatar'),
   authenticate,
   validateMongoId('contactId'),
   validateBody(updateContactSchema),
@@ -46,6 +49,7 @@ contactsRouter.patch(
 
 contactsRouter.put(
   '/:contactId',
+  upload.single('avatar'),
   authenticate,
   validateBody(createContactSchema),
   validateMongoId('contactId'),

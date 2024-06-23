@@ -1,5 +1,6 @@
 import createHttpError from 'http-errors';
 import { Contact } from '../db/contact.js';
+import { saveFile } from '../utils/saveFile.js';
 
 const createPaginationInformation = (page, perPage, count) => {
   const totalPages = Math.ceil(count / perPage);
@@ -72,18 +73,34 @@ export const getContactById = async (authContactId) => {
   return contact;
 };
 
-export const createContact = async (payload) => {
-  const contact = await Contact.create(payload);
+export const createContact = async ({ avatar, ...payload }, userId) => {
+  const url = await saveFile(avatar);
+
+  const contact = await Contact.create({
+    ...payload,
+    parentId: userId,
+    photo: url,
+  });
 
   return contact;
 };
 
-export const upsertContact = async (authContactId, payload, options = {}) => {
-  const rawResult = await Contact.findOneAndUpdate(authContactId, payload, {
-    new: true,
-    includeResultMetadata: true,
-    ...options,
-  });
+export const upsertContact = async (
+  authContactId,
+  { avatar, ...payload },
+  options = {},
+) => {
+  const url = await saveFile(avatar);
+
+  const rawResult = await Contact.findOneAndUpdate(
+    authContactId,
+    { payload, photo: url },
+    {
+      new: true,
+      includeResultMetadata: true,
+      ...options,
+    },
+  );
 
   if (!rawResult || !rawResult.value) {
     throw createHttpError(404, {

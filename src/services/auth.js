@@ -11,6 +11,7 @@ import { UsersCollection } from '../db/user.js';
 import { SessionsCollection } from '../db/session.js';
 import { env } from '../utils/env.js';
 import { sendMail } from '../utils/sendMail.js';
+import { deleteSession } from '../utils/deleteSession.js';
 
 export const registerUser = async (payload) => {
   const existingUser = await UsersCollection.findOne({ email: payload.email });
@@ -94,7 +95,7 @@ export const sendResetPassword = async (email) => {
   const user = await UsersCollection.findOne({ email });
 
   if (!user) {
-    throw createHttpError(404, 'User not found');
+    throw createHttpError(404, 'User not found!');
   }
 
   const token = jwt.sign(
@@ -128,16 +129,29 @@ export const sendResetPassword = async (email) => {
     });
   } catch (err) {
     console.log(err);
-    throw createHttpError(500, 'Problem with sending email');
+    throw createHttpError(
+      500,
+      'Failed to send the email, please try again later.',
+    );
   }
 };
 
 export const resetPassword = async ({ token, password }) => {
   let tokenPayload;
+
   try {
     tokenPayload = jwt.verify(token, env('JWT_SECRET'));
   } catch (err) {
-    throw createHttpError(401, err.message);
+    throw createHttpError(401, 'Token is expired or invalid.');
+  }
+
+  const user = await UsersCollection.findOne({
+    email: tokenPayload.email,
+    _id: tokenPayload.sub,
+  });
+
+  if (!user) {
+    throw createHttpError(404, 'User not found!');
   }
 
   const hashedPassword = await bcrypt.hash(password, 10);
@@ -148,4 +162,5 @@ export const resetPassword = async ({ token, password }) => {
     },
     { password: hashedPassword },
   );
+  await deleteSession(tokenPayload.sub);
 };
