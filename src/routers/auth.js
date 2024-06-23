@@ -37,13 +37,13 @@ authRouter.post(
 authRouter.post('/logout', authenticate, ctrlWrapper(logoutUserController));
 
 authRouter.post(
-  '/request-reset-password-email',
+  '/send-reset-email',
   validateBody(sendResetPasswordEmailSchema),
   ctrlWrapper(sendResetPasswordEmailController),
 );
 
 authRouter.post(
-  '/reset-password',
+  '/reset-pwd',
   validateBody(resetPasswordSchema),
   ctrlWrapper(resetPasswordController),
 );
