@@ -57,7 +57,7 @@ contactsRouter.put(
 );
 
 contactsRouter.delete(
-  '/contacts/:contactId',
+  '/:contactId',
   authenticate,
   validateMongoId('contactId'),
   ctrlWrapper(deleteContactByIdController),

@@ -36,6 +36,8 @@ export const getAllContacts = async ({
     contactsFilters.where('contactType').equals(filter.type);
   }
 
+  contactsFilters.where('userId').equals(userId);
+
   const [contactsCount, data] = await Promise.all([
     Contact.find().merge(contactsFilters).countDocuments(),
     Contact.find()
@@ -90,19 +92,19 @@ export const upsertContact = async (
   { avatar, ...payload },
   options = {},
 ) => {
-  const url = await saveFile(avatar);
+  const url = avatar ? await saveFile(avatar) : null;
 
-  const rawResult = await Contact.findOneAndUpdate(
-    authContactId,
-    { payload, photo: url },
-    {
-      new: true,
-      includeResultMetadata: true,
-      ...options,
-    },
-  );
+  const update = {
+    ...payload,
+    ...(url && { photo: url }),
+  };
 
-  if (!rawResult || !rawResult.value) {
+  const rawResult = await Contact.findOneAndUpdate(authContactId, update, {
+    new: true,
+    ...options,
+  });
+
+  if (!rawResult) {
     throw createHttpError(404, {
       status: 404,
       message: 'Contact not found',
@@ -111,7 +113,7 @@ export const upsertContact = async (
   }
 
   return {
-    contact: rawResult.value,
+    contact: rawResult,
     isNew: !rawResult?.lastErrorObject?.updatedExisting,
   };
 };

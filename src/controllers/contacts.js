@@ -79,7 +79,6 @@ export const createContactController = async (req, res, next) => {
 export const patchContactByIdController = async (req, res, next) => {
   const { body, file } = req;
   const authContactId = setAuthContactId(req);
-  // const { contactId } = req.params;
   const { contact } = await upsertContact(authContactId, {
     ...body,
     avatar: file,
@@ -94,7 +93,6 @@ export const patchContactByIdController = async (req, res, next) => {
 export const putContactByIdController = async (req, res, next) => {
   const { body, file } = req;
   const authContactId = setAuthContactId(req);
-  // const { contactId } = req.params;
   const { isNew, contact } = await upsertContact(
     authContactId,
     {
@@ -115,7 +113,6 @@ export const putContactByIdController = async (req, res, next) => {
 };
 
 export const deleteContactByIdController = async (req, res, next) => {
-  // const { contactId } = req.params;
   const authContactId = setAuthContactId(req);
   await deleteContactById(authContactId);
 
