@@ -32,7 +32,7 @@ contactsRouter.get(
 
 contactsRouter.post(
   '/',
-  upload.single('avatar'),
+  upload.single('photo'),
   authenticate,
   validateBody(createContactSchema),
   ctrlWrapper(createContactController),
@@ -40,7 +40,7 @@ contactsRouter.post(
 
 contactsRouter.patch(
   '/:contactId',
-  upload.single('avatar'),
+  upload.single('photo'),
   authenticate,
   validateMongoId('contactId'),
   validateBody(updateContactSchema),
@@ -49,7 +49,7 @@ contactsRouter.patch(
 
 contactsRouter.put(
   '/:contactId',
-  upload.single('avatar'),
+  upload.single('photo'),
   authenticate,
   validateBody(createContactSchema),
   validateMongoId('contactId'),

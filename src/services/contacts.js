@@ -75,8 +75,8 @@ export const getContactById = async (authContactId) => {
   return contact;
 };
 
-export const createContact = async ({ avatar, ...payload }, userId) => {
-  const url = await saveFile(avatar);
+export const createContact = async ({ photo, ...payload }, userId) => {
+  const url = await saveFile(photo);
 
   const contact = await Contact.create({
     ...payload,
@@ -89,10 +89,10 @@ export const createContact = async ({ avatar, ...payload }, userId) => {
 
 export const upsertContact = async (
   authContactId,
-  { avatar, ...payload },
+  { photo, ...payload },
   options = {},
 ) => {
-  const url = avatar ? await saveFile(avatar) : null;
+  const url = photo ? await saveFile(photo) : null;
 
   const update = {
     ...payload,
@@ -119,8 +119,8 @@ export const upsertContact = async (
 };
 
 export const deleteContactById = async (authContactId) => {
-  await Contact.findOneAndDelete(authContactId);
-  if (!authContactId) {
+  const contact = await Contact.findOneAndDelete(authContactId);
+  if (!contact) {
     throw createHttpError(404, {
       status: 404,
       message: 'Contact not found',

@@ -67,7 +67,7 @@ export const createContactController = async (req, res, next) => {
   const contact = await createContact({
     userId: req.user._id,
     ...req.body,
-    avatar: req.file,
+    photo: req.file,
   });
   res.status(201).json({
     status: 201,
@@ -81,7 +81,7 @@ export const patchContactByIdController = async (req, res, next) => {
   const authContactId = setAuthContactId(req);
   const { contact } = await upsertContact(authContactId, {
     ...body,
-    avatar: file,
+    photo: file,
   });
   res.json({
     status: 200,
@@ -97,7 +97,7 @@ export const putContactByIdController = async (req, res, next) => {
     authContactId,
     {
       ...body,
-      avatar: file,
+      photo: file,
     },
     {
       upsert: true,
