@@ -12,6 +12,7 @@ import { SessionsCollection } from '../db/session.js';
 import { env } from '../utils/env.js';
 import { sendMail } from '../utils/sendMail.js';
 import { deleteSession } from '../utils/deleteSession.js';
+import { validateGoogleOAuthCode } from '../utils/googleOAuth.js';
 
 export const registerUser = async (payload) => {
   const existingUser = await UsersCollection.findOne({ email: payload.email });
@@ -163,4 +164,33 @@ export const resetPassword = async ({ token, password }) => {
     { password: hashedPassword },
   );
   await deleteSession(tokenPayload.sub);
+};
+
+export const loginOrSignupWithGoogleOAuth = async (code) => {
+  const payload = await validateGoogleOAuthCode(code);
+  if (!payload) createHttpError(401);
+
+  let user = await UsersCollection.findOne({
+    email: payload.email,
+  });
+  if (!user) {
+    const hasedPassword = await bcrypt.hash(
+      randomBytes(30).toString('base64'),
+      10,
+    );
+    user = await UsersCollection.create({
+      name: payload.given_name + ' ' + payload.family_name,
+      password: hasedPassword,
+      email: payload.email,
+    });
+  }
+
+  await SessionsCollection.deleteOne({
+    userId: user._id,
+  });
+
+  return await SessionsCollection.create({
+    userId: user._id,
+    ...createSession(),
+  });
 };
