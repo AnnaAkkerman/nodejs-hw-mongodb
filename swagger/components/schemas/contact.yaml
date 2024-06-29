@@ -1,0 +1,36 @@
+type: object
+required:
+  - _id
+  - name
+  - phoneNumber
+  - email
+  - isFavorite
+  - contentType
+properties:
+  _id:
+    type: string
+    example: 66505f87d601252e9230ebfa
+  name:
+    type: string
+    example: Anna
+  phoneNumber:
+    type: string
+    example: +380000000025
+  email:
+    type: string
+    example: jkahsdah@example.com
+  isFavorite:
+    type: boolean
+    example: false
+  contentType:
+    type: string
+    enum:
+      - work
+      - home
+      - personal
+  userId:
+    type: string
+    example: 66505f87d601252e9230ebfa
+  photo:
+    type: string
+    example: <https://res.cloudinary.com/de5krkigu/image/upload/v1719231420/h2dtzhakufqji902qty.png>
